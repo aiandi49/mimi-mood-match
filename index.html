@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIMI'S MOOD MATCH — Feel, Match, Track, Grow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;500;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; }
+
+  .skin { display: none; }
+  .skin.active { display: block; }
+
+  /* ═══════════════════════════════════════════════════════
+     TOGGLE CONTROL
+  ═══════════════════════════════════════════════════════ */
+  .top-controls { position: fixed; top: 16px; right: 16px; z-index: 100; display:flex; gap:10px; }
+  .theme-switch {
+    display:flex; background:#FFFFFF; border:1px solid rgba(90,74,56,0.18);
+    border-radius: 999px; box-shadow: 0 2px 8px rgba(28,20,14,0.15); overflow:hidden;
+    font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.06em;
+  }
+  .theme-switch button {
+    border:none; background:transparent; color:#8A7A6C; cursor:pointer;
+    padding:9px 16px; font-family:inherit; font-size:inherit; letter-spacing:inherit;
+    display:flex; align-items:center; gap:6px; transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .theme-switch button.active { color:#221D18; background:#F0E6D2; }
+  .swatch { width:9px; height:9px; border-radius:50%; display:inline-block; }
+  .swatch.j { background: linear-gradient(135deg,#7A2138,#B8963E); }
+  .swatch.u { background: linear-gradient(135deg,#B3001B,#D4AF37); }
+
+  /* ═══════════════════════════════════════════════════════
+     SKIN: JANET  (exact structure/CSS of JANET (TEMPLATE).html)
+  ═══════════════════════════════════════════════════════ */
+  .skin-janet {
+    --paper: #020817; --card: #0A1628; --card-tint: #0D1D33;
+    --ink: #E0F0FF; --ink-soft: #A0C4E0; --ink-faint: #6C8CAE;
+    --berry: #00AEFF; --berry-soft: #33C2FF; --gold: #00E5CC; --gold-soft: #4DF0DE;
+    --rose: #0D2545; --line: rgba(0,174,255,0.20);
+    --shadow-sm: 0 2px 12px rgba(0,174,255,0.15); --shadow-md: 0 14px 44px rgba(0,174,255,0.18); --shadow-lg: 0 26px 76px rgba(0,229,204,0.18);
+    --grad-hero: linear-gradient(135deg, #020817 0%, #0A1628 35%, #00AEFF 78%, #00E5CC 100%);
+    --grad-callout: linear-gradient(135deg, #0A1628 0%, #0D2545 100%);
+    --watermark: rgba(0,174,255,0.10); --glow-1: rgba(0,174,255,0.18); --glow-2: rgba(0,229,204,0.16);
+    background: var(--paper); color: var(--ink);
+    font-family:'Inter',-apple-system,sans-serif; font-size:17px; line-height:1.65;
+    -webkit-font-smoothing:antialiased; position:relative;
+  }
+  .skin-janet::before {
+    content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image: radial-gradient(ellipse 70% 45% at 15% -5%, var(--glow-1), transparent 60%),
+                       radial-gradient(ellipse 55% 40% at 90% 15%, var(--glow-2), transparent 55%);
+  }
+  .skin-janet::after {
+    content:""; position:fixed; inset:0; z-index:0; pointer-events:none; opacity:0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .skin-janet ::selection { background: var(--gold-soft); color:#1c1210; }
+  .skin-janet .wrap { max-width:760px; margin:0 auto; padding:0 24px; position:relative; z-index:1; }
+
+  .skin-janet .hero { position:relative; background:var(--grad-hero); z-index:1; padding:96px 24px 150px; text-align:center; overflow:hidden; }
+  .skin-janet .hero::before { content:""; position:absolute; inset:0; background-image: radial-gradient(circle at 18% 22%, rgba(255,255,255,0.16), transparent 42%), radial-gradient(circle at 82% 78%, rgba(255,255,255,0.10), transparent 45%); pointer-events:none; }
+  .skin-janet .hero-inner { position:relative; max-width:640px; margin:0 auto; }
+  .skin-janet .eyebrow { font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:0.18em; text-transform:uppercase; color:rgba(255,247,238,0.82); margin:0 0 22px; }
+  .skin-janet .eyebrow .dot { color:rgba(255,247,238,0.5); margin:0 8px; }
+  .skin-janet .hero h1 { font-family:'Fraunces',serif; font-optical-sizing:auto; font-weight:600; font-size:clamp(44px,9vw,78px); line-height:0.98; color:#FFF7EE; margin:0 0 20px; letter-spacing:-0.01em; }
+  .skin-janet .hero .sub { font-family:'Fraunces',serif; font-style:italic; font-weight:400; font-size:clamp(18px,3vw,23px); color:rgba(255,247,238,0.92); max-width:540px; margin:0 auto 34px; line-height:1.5; }
+  .skin-janet .byline { font-family:'IBM Plex Mono',monospace; font-size:12.5px; letter-spacing:0.04em; color:rgba(255,247,238,0.75); }
+  .skin-janet .byline strong { color:#FFF7EE; font-weight:500; }
+
+  .skin-janet .intro-card { position:relative; background:var(--card); border-radius:22px; box-shadow:var(--shadow-lg); padding:52px 48px; margin:-100px auto 0; max-width:720px; z-index:5; }
+  .skin-janet .intro-card p { margin:0 0 16px; color:var(--ink-soft); font-size:17px; }
+  .skin-janet .intro-card p:last-child { margin-bottom:0; }
+  .skin-janet .dropcap:first-letter { font-family:'Fraunces',serif; font-weight:600; font-size:68px; line-height:0.75; float:left; padding:6px 10px 0 0; color:var(--berry); }
+
+  .skin-janet main { padding:90px 0 40px; }
+  .skin-janet section.piece { position:relative; z-index:1; margin:0 auto 64px; max-width:760px; padding:0 24px; }
+  .skin-janet .card { position:relative; background:var(--card); border-radius:20px; box-shadow:var(--shadow-md); padding:56px 44px; overflow:hidden; }
+  .skin-janet .watermark-letter { position:absolute; top:-0.12em; right:0.02em; font-family:'Fraunces',serif; font-weight:900; font-size:240px; line-height:1; color:var(--watermark); pointer-events:none; user-select:none; z-index:0; }
+  .skin-janet .card-inner { position:relative; z-index:1; }
+  .skin-janet .section-eyebrow { font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:0.14em; text-transform:uppercase; color:var(--gold); margin:0 0 10px; display:flex; align-items:center; gap:10px; }
+  .skin-janet .section-eyebrow::before { content:""; width:22px; height:1px; background:var(--gold); display:inline-block; }
+  .skin-janet h2.section-title { font-family:'Fraunces',serif; font-weight:600; font-size:clamp(28px,5vw,40px); line-height:1.1; margin:0 0 26px; color:var(--ink); max-width:92%; }
+  .skin-janet .card-inner p { color:var(--ink-soft); font-size:16.5px; margin:0 0 18px; }
+  .skin-janet .card-inner p:last-child { margin-bottom:0; }
+
+  .skin-janet .pullquote { margin:30px 0 6px; padding:26px 28px; background:var(--card-tint); border-left:3px solid var(--berry); border-radius:4px 14px 14px 4px; }
+  .skin-janet .pullquote p { font-family:'Fraunces',serif; font-style:italic; font-weight:500; font-size:clamp(19px,2.6vw,23px); line-height:1.42; color:var(--ink); margin:0 0 12px !important; }
+  .skin-janet .rec-tag { font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-faint); display:inline-flex; align-items:center; gap:6px; }
+  .skin-janet .rec-tag .rec-dot { width:6px; height:6px; border-radius:50%; background:var(--berry-soft); display:inline-block; }
+
+  .skin-janet .divider { position:relative; z-index:1; max-width:760px; margin:0 auto 64px; padding:0 24px; display:flex; align-items:center; gap:14px; color:var(--ink-faint); }
+  .skin-janet .divider .line { flex:1; height:1px; background:var(--line); }
+  .skin-janet .divider .mark { font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.1em; }
+
+  .skin-janet .duo { display:grid; grid-template-columns:1fr 1fr; gap:22px; }
+  .skin-janet .duo .voice { background:var(--card-tint); border-radius:14px; padding:30px 26px; }
+  .skin-janet .duo .voice h3 { font-family:'Fraunces',serif; font-style:italic; font-weight:500; font-size:20px; margin:0 0 14px; color:var(--berry); }
+  .skin-janet .duo .voice p { font-size:15.5px; color:var(--ink-soft); margin:0; }
+
+  .skin-janet .pillar-quad { display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-top:8px; }
+  .skin-janet .pillar-quad .voice { background:var(--card-tint); border-radius:14px; padding:26px 24px; }
+  .skin-janet .pillar-quad .voice .p-num { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--gold); letter-spacing:0.1em; }
+  .skin-janet .pillar-quad .voice h3 { font-family:'Fraunces',serif; font-weight:600; font-style:normal; font-size:19px; margin:6px 0 8px; color:var(--ink); }
+  .skin-janet .pillar-quad .voice p { font-size:14.8px; color:var(--ink-soft); margin:0; line-height:1.5; }
+
+  .skin-janet .callout { position:relative; z-index:1; max-width:760px; margin:0 auto 70px; padding:0 24px; }
+  .skin-janet .callout-inner { background:var(--grad-callout); border-radius:20px; padding:52px 44px; box-shadow:var(--shadow-md); }
+  .skin-janet .callout-inner .section-eyebrow { color:var(--berry); }
+  .skin-janet .callout-inner .section-eyebrow::before { background:var(--berry); }
+  .skin-janet .callout-inner h2 { color:#F3E7DC; }
+  .skin-janet .callout-list { list-style:none; margin:20px 0 0; padding:0; }
+  .skin-janet .callout-list li { position:relative; padding-left:30px; margin-bottom:16px; font-size:16px; line-height:1.55; color:#E9D9C6; }
+  .skin-janet .callout-list li:last-child { margin-bottom:0; }
+  .skin-janet .callout-list li::before { content:""; position:absolute; left:0; top:7px; width:9px; height:9px; border-radius:50%; background:var(--berry); }
+
+  .skin-janet .devgrid { display:grid; grid-template-columns:1fr 1fr; gap:10px 24px; margin-top:6px; }
+  .skin-janet .devrow { display:flex; justify-content:space-between; border-bottom:1px dashed var(--line); padding:8px 0; font-size:14.5px; }
+  .skin-janet .devrow span:first-child { color:var(--ink-faint); font-family:'IBM Plex Mono',monospace; font-size:11.5px; letter-spacing:0.04em; }
+  .skin-janet .devrow span:last-child { color:var(--ink); font-weight:500; }
+
+  .skin-janet .closing { position:relative; z-index:1; max-width:620px; margin:0 auto 60px; padding:0 24px; text-align:center; }
+  .skin-janet .closing p.big { font-family:'Fraunces',serif; font-style:italic; font-weight:500; font-size:clamp(22px,4vw,30px); line-height:1.45; color:var(--ink); margin:0 0 26px; }
+  .skin-janet .closing .attribution { font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:0.05em; color:var(--ink-faint); }
+
+  .skin-janet footer { position:relative; z-index:1; text-align:center; padding:44px 24px 70px; color:var(--ink-faint); font-family:'IBM Plex Mono',monospace; font-size:11.5px; letter-spacing:0.05em; border-top:1px solid var(--line); max-width:760px; margin:0 auto; }
+  .skin-janet footer p { margin:6px 0; }
+
+  @media (max-width:720px) {
+    .skin-janet .intro-card { padding:40px 28px; margin-top:-70px; border-radius:18px; }
+    .skin-janet .card { padding:40px 26px; }
+    .skin-janet .callout-inner { padding:40px 26px; }
+    .skin-janet .watermark-letter { font-size:150px; }
+    .skin-janet .duo, .skin-janet .pillar-quad { grid-template-columns:1fr; }
+    .skin-janet .hero { padding:80px 20px 130px; }
+    .skin-janet h2.section-title { max-width:100%; }
+    .skin-janet .devgrid { grid-template-columns:1fr; }
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     SKIN: U.G.L.Y.  (exact structure/CSS of U.G.L.Y. (TEMPLATE).html)
+  ═══════════════════════════════════════════════════════ */
+  .skin-ugly {
+    --ink: #070008; --panel: rgba(22,4,18,0.92); --blood:#b3001b; --deep-blood:#8b0000;
+    --gold:#d4af37; --muted:#a89880; --bone:#e8e0d0;
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(139,0,0,0.25), transparent 60%),
+      radial-gradient(900px 500px at 10% 30%, rgba(74,0,120,0.18), transparent 60%),
+      linear-gradient(180deg, #0b0010 0%, var(--ink) 40%, #0a0106 100%);
+    color: var(--bone); font-family:'Crimson Text',serif; font-size:18px; line-height:1.6; min-height:100vh;
+  }
+  .skin-ugly .wrap { max-width:1100px; margin:0 auto; padding:0 28px; }
+
+  .skin-ugly header { padding:72px 0 40px; text-align:center; }
+  .skin-ugly .mast-eyebrow { font-family:'Cinzel',serif; font-size:12px; letter-spacing:6px; color:var(--blood); text-transform:uppercase; margin-bottom:18px; }
+  .skin-ugly h1.masthead { font-family:'Cinzel Decorative',serif; font-size:clamp(44px,8vw,84px); font-weight:900; color:var(--gold); letter-spacing:6px; text-shadow:0 0 30px rgba(212,175,55,0.35), 0 0 80px rgba(139,0,0,0.4); line-height:1.05; }
+  .skin-ugly .mast-sub { margin-top:18px; font-size:20px; font-style:italic; color:var(--muted); }
+  .skin-ugly .mast-credits { margin-top:26px; font-family:'Cinzel',serif; font-size:12px; letter-spacing:3px; color:rgba(212,175,55,0.75); }
+  .skin-ugly .mast-credits span { color:var(--bone); }
+
+  .skin-ugly .countdown-banner { margin:44px auto 0; max-width:760px; border:1px solid rgba(212,175,55,0.4); background:linear-gradient(135deg, rgba(139,0,0,0.35), rgba(20,0,10,0.9)); border-radius:10px; padding:22px 28px; text-align:center; box-shadow:0 0 50px rgba(139,0,0,0.35); }
+  .skin-ugly .countdown-label { font-family:'Cinzel',serif; font-size:12px; letter-spacing:4px; color:var(--gold); margin-bottom:10px; }
+  .skin-ugly .countdown-status { font-family:'Cinzel',serif; font-size:clamp(20px,4vw,32px); font-weight:700; color:#7CFC9A; letter-spacing:3px; text-shadow:0 0 20px rgba(124,252,154,0.4); }
+  .skin-ugly .countdown-when { margin-top:8px; font-size:14px; color:var(--muted); font-style:italic; }
+
+  .skin-ugly main { padding:70px 0 40px; }
+  .skin-ugly .section-head { font-family:'Cinzel',serif; font-size:13px; letter-spacing:5px; color:var(--blood); text-transform:uppercase; margin:56px 0 20px; display:flex; align-items:center; gap:16px; }
+  .skin-ugly .section-head::after { content:''; flex:1; height:1px; background:linear-gradient(90deg, rgba(179,0,27,0.5), transparent); }
+
+  .skin-ugly .strip { display:grid; grid-template-columns:110px 1fr auto; gap:28px; align-items:center; padding:34px 30px; margin-bottom:22px; background:var(--panel); border:1px solid rgba(212,175,55,0.16); border-left:3px solid var(--deep-blood); border-radius:8px; transition:border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease; }
+  .skin-ugly .strip:hover { border-color:rgba(212,175,55,0.45); border-left-color:var(--blood); box-shadow:0 12px 50px rgba(0,0,0,0.6), 0 0 40px rgba(139,0,0,0.25); transform:translateY(-2px); }
+  .skin-ugly .strip.flagship { border-left-color:var(--gold); background:linear-gradient(135deg, rgba(40,4,10,0.95), rgba(15,2,14,0.95)); }
+  .skin-ugly .ep-marker { font-family:'Cinzel',serif; text-align:center; }
+  .skin-ugly .ep-marker .ep-word { display:block; font-size:11px; letter-spacing:4px; color:rgba(212,175,55,0.6); }
+  .skin-ugly .ep-marker .ep-num { display:block; font-size:44px; font-weight:700; color:var(--blood); text-shadow:0 0 18px rgba(255,26,26,0.45); line-height:1.1; }
+  .skin-ugly .strip-body h2 { font-family:'Cinzel',serif; font-size:26px; font-weight:700; color:var(--gold); letter-spacing:1.5px; margin-bottom:6px; }
+  .skin-ugly .strip-body .strip-sub { color:var(--muted); font-size:17px; }
+  .skin-ugly .strip-badges { margin-top:12px; display:flex; flex-wrap:wrap; gap:8px; }
+  .skin-ugly .badge { font-family:'Cinzel',serif; font-size:10px; letter-spacing:2px; color:var(--gold); border:1px solid rgba(212,175,55,0.4); border-radius:30px; padding:4px 12px; background:rgba(212,175,55,0.06); }
+  .skin-ugly .badge.red { color:#ff9999; border-color:rgba(255,26,26,0.4); background:rgba(139,0,0,0.15); }
+  .skin-ugly .strip-cta { display:flex; flex-direction:column; gap:10px; align-items:stretch; }
+  .skin-ugly .btn { display:inline-block; font-family:'Cinzel',serif; font-size:12px; letter-spacing:3px; text-decoration:none; text-align:center; color:var(--gold); border:1px solid var(--gold); border-radius:40px; padding:12px 26px; background:linear-gradient(135deg, rgba(139,0,0,0.6), rgba(60,0,0,0.6)); transition:all 0.25s ease; white-space:nowrap; cursor:pointer; }
+  .skin-ugly .btn:hover { background:linear-gradient(135deg, #a00000, #600000); box-shadow:0 0 26px rgba(212,175,55,0.4); transform:translateY(-1px); }
+  .skin-ugly .btn.ghost { background:none; border-color:rgba(212,175,55,0.4); color:rgba(212,175,55,0.85); }
+
+  .skin-ugly .unlock { grid-column:1 / -1; margin-top:18px; border:1px dashed rgba(212,175,55,0.45); border-radius:10px; padding:20px 24px; display:flex; flex-wrap:wrap; align-items:center; gap:18px; background:rgba(212,175,55,0.05); }
+  .skin-ugly .unlock-copy { flex:1 1 320px; }
+  .skin-ugly .unlock-copy .price { font-family:'Cinzel Decorative',serif; font-size:34px; color:var(--gold); text-shadow:0 0 18px rgba(212,175,55,0.4); margin-right:6px; }
+  .skin-ugly .unlock-copy .u-line { color:var(--bone); font-size:17px; }
+  .skin-ugly .unlock-copy .u-note { color:var(--muted); font-size:14px; font-style:italic; margin-top:4px; }
+  .skin-ugly .unlock-btns { display:flex; flex-direction:column; gap:10px; }
+
+  .skin-ugly footer { border-top:1px solid rgba(212,175,55,0.15); margin-top:60px; padding:40px 0 60px; text-align:center; color:var(--muted); font-size:15px; }
+  .skin-ugly footer a { color:var(--gold); text-decoration:none; }
+  .skin-ugly .foot-credit { font-family:'Cinzel',serif; letter-spacing:2px; font-size:12px; margin-top:10px; }
+
+  @media (max-width:720px) {
+    .skin-ugly body { font-size:17px; }
+    .skin-ugly .strip { grid-template-columns:1fr; gap:16px; padding:26px 22px; }
+    .skin-ugly .ep-marker { text-align:left; display:flex; align-items:baseline; gap:10px; }
+    .skin-ugly .ep-marker .ep-num { font-size:30px; }
+    .skin-ugly .strip-cta { flex-direction:row; flex-wrap:wrap; }
+    .skin-ugly .btn { flex:1 1 auto; }
+    .skin-ugly header { padding:52px 0 30px; }
+  }
+
+</style>
+</head>
+<body>
+
+<div class="top-controls">
+  <div class="theme-switch" id="themeSwitch">
+    <button data-skin="janet" class="active"><span class="swatch j"></span>Janet</button>
+    <button data-skin="ugly"><span class="swatch u"></span>U.G.L.Y.</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════ SKIN: JANET ═══════════════════════ -->
+<!-- ═══════════════════════ SKIN: JANET ═══════════════════════ -->
+<div class="skin skin-janet active" id="skinJanet">
+
+  <div class="hero">
+    <div class="hero-inner">
+      <p class="eyebrow">A MOOD-MATCHING LISTENING COMPANION <span class="dot">·</span> CONCEPT HUB № 21</p>
+      <h1>Mimi's Mood Match</h1>
+      <p class="sub">Tell it how you feel, and it hands you the song from one catalog that fits — mood tagging, a personal library, and streaks built around a single artist's discography.</p>
+      <p class="byline">Built by <strong>AI&amp;I</strong></p>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="intro-card">
+      <p class="dropcap">Mimi's Mood Match is a real, fully built full-stack application — a mood-based song matching tool built entirely around Mariah Carey's discography. A user describes their emotional tone and energy level, and the app matches them to a track tagged for that mood, from Melancholic and Nostalgic to Empowered and Festive.</p>
+      <p>What makes it more than a playlist generator is the depth underneath: a manually mood-tagged song library, a matching algorithm that scores tracks against emotional tone and energy level, a personal listening library, a streak and achievement system to encourage daily use, and an admin tool for managing the catalog.</p>
+      <p>Worth flagging up front: this concept is built entirely on one real artist's copyrighted catalog and name. It's documented here as a concept and personal project — any commercial version would need licensing from the relevant rights holders before it could be sold or distributed. The five W's below reflect that.</p>
+      <p>What follows is the same structure AI&amp;I uses for every concept trial: the five W's of the idea, the five W's of monetizing it, and the developer information behind it — all in one place.</p>
+    </div>
+  </div>
+
+  <main>
+
+    <section class="piece" id="who">
+      <div class="card">
+        <div class="watermark-letter">W</div>
+        <div class="card-inner">
+          <p class="section-eyebrow">The First W</p>
+          <h2 class="section-title">Who: The Listener Who Wants a Song, Not a Shuffle</h2>
+          <p>Mimi's Mood Match is built for people who already love Mariah Carey's catalog and want a faster way into the right track for how they feel right now, instead of scrolling a 20-plus-track discography hoping something lands.</p>
+          <p>It's a mood-based listening companion, not a clinical tool — it's designed to make finding the right song easier, not to diagnose, treat, or replace care for anxiety, depression, or any other condition.</p>
+          <div class="pullquote">
+            <p>"The catalog already runs the emotional range — melancholic, nostalgic, empowered, festive. The app's whole job is getting a listener to the right one faster."</p>
+            <span class="rec-tag"><span class="rec-dot"></span>Working Thesis</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"><div class="line"></div><span class="mark">01 / 05</span><div class="line"></div></div>
+
+    <section class="piece" id="what">
+      <div class="card">
+        <div class="watermark-letter">W</div>
+        <div class="card-inner">
+          <p class="section-eyebrow">The Second W</p>
+          <h2 class="section-title">What: Four Systems, One Catalog From Mood to Habit</h2>
+          <p>The app follows a listener from a mood check-in to a returning habit across four connected systems.</p>
+          <div class="pillar-quad">
+            <div class="voice"><div class="p-num">System 01</div><h3>Feel</h3><p>A mood input flow capturing emotional tone and energy level, the starting point for every match.</p></div>
+            <div class="voice"><div class="p-num">System 02</div><h3>Match</h3><p>A scoring algorithm pairing mood tags — Empowered, Melancholic, Nostalgic, Romantic, Festive, Sassy, Hopeful, Dreamy — against the user's input to return the best-fit track.</p></div>
+            <div class="voice"><div class="p-num">System 03</div><h3>Track</h3><p>A personal library and results history, so a listener can revisit past matches and see their own emotional listening pattern over time.</p></div>
+            <div class="voice"><div class="p-num">System 04</div><h3>Grow</h3><p>A streak and achievement system rewarding daily check-ins, plus an admin tool for managing and tagging the underlying catalog.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"><div class="line"></div><span class="mark">02 / 05</span><div class="line"></div></div>
+
+    <section class="piece" id="when-where">
+      <div class="card">
+        <div class="watermark-letter">W</div>
+        <div class="card-inner">
+          <p class="section-eyebrow">The Third &amp; Fourth W</p>
+          <h2 class="section-title">When &amp; Where: The Moment Before You Know What to Play</h2>
+          <p><strong>When it's used:</strong> right at the moment someone knows how they feel but hasn't decided what to listen to — a quick mood check-in stands in for scrolling.</p>
+          <p><strong>Where it lives:</strong> as a companion app for an existing fan, layered on top of however they already listen — the app matches and points to a track, it isn't a streaming service on its own.</p>
+          <div class="pullquote">
+            <p>"Why build mood-matching around one artist instead of a whole streaming catalog? Because a deep, well-tagged discography from one voice is a more coherent emotional map than a shallow tag across a million songs."</p>
+            <span class="rec-tag"><span class="rec-dot"></span>The Why</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"><div class="line"></div><span class="mark">03 / 05</span><div class="line"></div></div>
+
+    <section class="piece" id="monetization">
+      <div class="card">
+        <div class="watermark-letter">$</div>
+        <div class="card-inner">
+          <p class="section-eyebrow">The Five W's — Monetization</p>
+          <h2 class="section-title">Who We'd Sell To, and What Would Actually Be For Sale</h2>
+          <p><strong>Who we'd sell to:</strong> fans of this specific catalog, or — reframed as a template — any artist's estate, label, or fan-engagement team wanting a mood-matching companion app for their own catalog.</p>
+          <p><strong>What's for sale:</strong> not the catalog itself — that isn't ours to sell — but the mood-tagging engine, the matching algorithm, and the streak and library system as a reusable app template that could be re-skinned for a properly licensed artist catalog.</p>
+          <div class="duo">
+            <div class="voice">
+              <h3>When We'd Sell</h3>
+              <p>Once there's a licensing conversation in place with the actual rights holders — the catalog owner, publisher, or artist's team — since the underlying songs and name aren't ours to commercialize as-is.</p>
+            </div>
+            <div class="voice">
+              <h3>Where We'd Sell</h3>
+              <p>Directly to a label, artist estate, or fan-engagement team as a white-label mood-matching product, rather than distributing this specific build commercially without a license.</p>
+            </div>
+          </div>
+          <div class="pullquote">
+            <p>"Why frame the pitch around the engine, not the catalog? Because the mood-tagging and matching logic is the reusable, sellable part — the songs and name are someone else's IP, and any real pitch has to say so upfront."</p>
+            <span class="rec-tag"><span class="rec-dot"></span>The Monetization Why</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"><div class="line"></div><span class="mark">04 / 05</span><div class="line"></div></div>
+
+    <section class="callout">
+      <div class="callout-inner">
+        <p class="section-eyebrow">A Note on How This Was Built</p>
+        <h2 class="section-title" style="max-width:100%;">Read From the Real Codebase, With One Honest Caveat</h2>
+        <ul class="callout-list">
+          <li>Every mechanic here — the mood-tagging system, the scoring algorithm, the streak and achievement logic — comes directly from the actual application, not invented for this hub.</li>
+          <li>The four-system framing — Feel, Match, Track, Grow — is AI&amp;I's own way of organizing what the app already does.</li>
+          <li>The catalog itself is Mariah Carey's copyrighted work, and the name and likeness used throughout are hers. This hub doesn't reproduce any lyrics, and treats the concept as a personal project and technical case study rather than a ready-to-launch commercial product.</li>
+          <li>Any path to real monetization runs through licensing with the actual rights holders first — that's a genuine constraint, not a footnote.</li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="divider"><div class="line"></div><span class="mark">05 / 05</span><div class="line"></div></div>
+
+    <section class="piece" id="developer">
+      <div class="card">
+        <div class="card-inner">
+          <p class="section-eyebrow">Developer Information</p>
+          <h2 class="section-title">Built By AI&amp;I</h2>
+          <div class="devgrid">
+            <div class="devrow"><span>Company</span><span>AI&amp;I</span></div>
+            <div class="devrow"><span>Developer</span><span>Lamar Myers</span></div>
+            <div class="devrow"><span>Phone</span><span>520-258-2714</span></div>
+            <div class="devrow"><span>Email</span><span>ai.agent.lamar@gmail.com</span></div>
+            <div class="devrow"><span>Repositories</span><span>github.com/MOMF49</span></div>
+            <div class="devrow"><span>Stack</span><span>React + TypeScript + FastAPI</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="closing">
+      <p class="big">"The songs already do the emotional work. The app's only job is getting out of the way fast enough to hand you the right one."</p>
+      <p class="attribution">— Mimi's Mood Match, working draft</p>
+    </div>
+
+  </main>
+
+  <footer>
+    <p>Documents a real full-stack application — Mimi's Mood Match, built with React, TypeScript, and FastAPI.</p>
+    <p>Concept Hub № 21 — part of the AI&amp;I 5 W's pipeline.</p>
+  </footer>
+
+</div>
+<!-- ═══════════════════════ SKIN: U.G.L.Y. ═══════════════════════ -->
+<div class="skin skin-ugly" id="skinUgly">
+
+  <header class="wrap">
+    <div class="mast-eyebrow">✦ Four Systems. One Catalog. ✦</div>
+    <h1 class="masthead">MIMI'S MOOD MATCH</h1>
+    <p class="mast-sub">The songs already run the emotional range.<br>The app's only job is getting you to the right one fast.</p>
+    <div class="mast-credits">
+      Built by <span>AI&amp;I</span> &nbsp;·&nbsp; Developer <span>Lamar Myers</span>
+    </div>
+
+    <div class="countdown-banner">
+      <div class="countdown-label">STATUS — LIVE APP, CONCEPT &amp; LICENSING NOTE</div>
+      <div class="countdown-status">READY FOR REVIEW</div>
+      <div class="countdown-when">React + FastAPI · 6 pages · 4 backend modules · 4 core systems</div>
+    </div>
+  </header>
+
+  <main class="wrap">
+
+    <div class="section-head">The Four Systems</div>
+
+    <div class="strip flagship">
+      <div class="ep-marker"><span class="ep-word">System</span><span class="ep-num">01</span></div>
+      <div class="strip-body">
+        <h2>Feel — Mood &amp; Energy Check-In</h2>
+        <p class="strip-sub">A quick mood input flow capturing emotional tone and energy level, the starting point for every match.</p>
+        <div class="strip-badges">
+          <span class="badge red">MOOD INPUT</span>
+          <span class="badge">ENERGY SCALE</span>
+        </div>
+      </div>
+      <div class="strip-cta"><span class="btn ghost">View the System</span></div>
+    </div>
+
+    <div class="strip">
+      <div class="ep-marker"><span class="ep-word">System</span><span class="ep-num">02</span></div>
+      <div class="strip-body">
+        <h2>Match — Mood-Tag Scoring Engine</h2>
+        <p class="strip-sub">Mood tags spanning Empowered, Melancholic, Nostalgic, Romantic, Festive, Sassy, Hopeful, and Dreamy, scored against the user's input.</p>
+        <div class="strip-badges"><span class="badge">SCORING ALGORITHM</span></div>
+      </div>
+      <div class="strip-cta"><span class="btn ghost">View the System</span></div>
+    </div>
+
+    <div class="strip">
+      <div class="ep-marker"><span class="ep-word">System</span><span class="ep-num">03</span></div>
+      <div class="strip-body">
+        <h2>Track — Personal Library &amp; History</h2>
+        <p class="strip-sub">A personal library and match history, so a listener can revisit past matches and see their own listening pattern.</p>
+        <div class="strip-badges"><span class="badge red">PERSONAL HISTORY</span></div>
+      </div>
+      <div class="strip-cta"><span class="btn ghost">View the System</span></div>
+    </div>
+
+    <div class="strip">
+      <div class="ep-marker"><span class="ep-word">System</span><span class="ep-num">04</span></div>
+      <div class="strip-body">
+        <h2>Grow — Streaks, Achievements &amp; Catalog Admin</h2>
+        <p class="strip-sub">A streak and achievement system rewarding daily check-ins, plus an admin tool for managing the catalog.</p>
+        <div class="strip-badges"><span class="badge">DAILY HABIT LOOP</span></div>
+      </div>
+      <div class="strip-cta"><span class="btn ghost">View the System</span></div>
+    </div>
+
+    <div class="section-head">Monetization</div>
+
+    <div class="strip flagship">
+      <div class="ep-marker"><span class="ep-word">The</span><span class="ep-num" style="font-size:22px; line-height:1.3;">Model</span></div>
+      <div class="strip-body">
+        <h2>The Engine Is Sellable. The Catalog Isn't Ours.</h2>
+        <p class="strip-sub">The mood-tagging engine and matching logic are a reusable template — any commercial version would need licensing with the actual catalog's rights holders first.</p>
+        <div class="strip-badges">
+          <span class="badge">WHITE-LABEL TEMPLATE</span>
+          <span class="badge">LICENSING REQUIRED</span>
+        </div>
+      </div>
+      <div class="strip-cta"><span class="btn ghost">View Tiers</span></div>
+
+      <div class="unlock">
+        <div class="unlock-copy">
+          <div class="u-line"><span class="price">4</span> connected systems, one engine, from mood check-in to daily habit.</div>
+          <div class="u-note">Pitched to labels, artist estates, or fan-engagement teams as a licensed, re-skinned product — not distributed as-is.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-head">Developer</div>
+
+    <div class="strip">
+      <div class="ep-marker"><span class="ep-word">Built</span><span class="ep-num" style="font-size:22px; line-height:1.3;">By</span></div>
+      <div class="strip-body">
+        <h2>AI&amp;I — Lamar Myers</h2>
+        <p class="strip-sub">github.com/MOMF49 &nbsp;·&nbsp; ai.agent.lamar@gmail.com &nbsp;·&nbsp; 520-258-2714 &nbsp;·&nbsp; React + TypeScript + FastAPI</p>
+      </div>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <p>Built by <a href="#">Lamar Myers — AI&amp;I</a></p>
+      <p class="foot-credit">LIVE APP · 4 CORE SYSTEMS · LICENSING NOTE ATTACHED</p>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  (function () {
+    var buttons = document.querySelectorAll('#themeSwitch button');
+    var janet = document.getElementById('skinJanet');
+    var ugly = document.getElementById('skinUgly');
+    buttons.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var skin = btn.getAttribute('data-skin');
+        janet.classList.toggle('active', skin === 'janet');
+        ugly.classList.toggle('active', skin === 'ugly');
+        buttons.forEach(function (b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>

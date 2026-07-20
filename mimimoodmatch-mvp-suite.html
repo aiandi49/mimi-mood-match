@@ -70,6 +70,24 @@ body {
 }
 .nav-btn:hover { color: var(--text); }
 .nav-btn.active { color: var(--teal2); border-bottom-color: var(--teal2); }
+.nav-back {
+  padding: 18px 20px;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: 'DM Mono', monospace;
+  flex-shrink: 0;
+  text-decoration: none;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.2s;
+}
+.nav-back:hover { color: var(--teal2); }
 
 /* ── SECTION WRAPPER ── */
 .wf-section {
@@ -909,6 +927,7 @@ body {
   <div class="nav-btn" onclick="showWF(3,this)">03 · Developer Info</div>
   <div class="nav-btn" onclick="showWF(4,this)">04 · Launch Strategy</div>
   <div class="nav-btn" onclick="showWF(5,this)">05 · Press Release</div>
+  <a class="nav-back" href="index.html">&larr; Back to Index</a>
 </nav>
 
 
